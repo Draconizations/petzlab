@@ -1,7 +1,6 @@
 uniform float ballSize;
 uniform vec2 viewportSize;
 uniform float fuzzAmount;
-uniform float zAdd;
 
 varying vec2 centerFragcoord;
 varying vec4 centerView;

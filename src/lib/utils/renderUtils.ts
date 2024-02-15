@@ -2,21 +2,33 @@ import * as THREE from "three"
 import ballVertexShader from "$lib/shaders/ball.vert?raw"
 import ballFragmentShader from "$lib/shaders/ball.frag?raw"
 
-interface BallMesh { 
+interface BallMesh extends BallOptions { 
   mesh: THREE.Mesh, 
-  pos: THREE.Vector3, 
-  index: number,
-  size: number
 }
 
-export function makeBallz(amount: number, ballSize: number, fuzzAmount: number) {
+interface BallOptions {
+  outline: number,
+  fuzz: number,
+  size: number,
+  pos?: THREE.Vector3
+}
+
+export function makeBallz(options: BallOptions[]) {
   const ballz: BallMesh[] = []
 
-  for (let i = 0; i < amount; i++) {
-    const mesh = createBallMesh(i, ballSize, fuzzAmount)
-    mesh.position.set(i * 2, 0, 0)
+  for (let i = 0; i < options.length; i++) {
+    const mesh = createBallMesh(options[i])
+    
+    if (!options[i].pos) {
+      options[i].pos = new THREE.Vector3(i * 2, 0, 0)
+    } 
+    
+    mesh.position.set(options[i].pos?.x || 0, options[i].pos?.y || 0, options[i].pos?.z || 0)
 
-    ballz.push({ mesh, pos: new THREE.Vector3(i * 2, 0, 0), index: i, size: ballSize})
+    ballz.push({...options[i], ...{ 
+      mesh, 
+      pos: mesh.position, 
+    }})
   }
   
   return {
@@ -36,9 +48,7 @@ export function makeBallz(amount: number, ballSize: number, fuzzAmount: number) 
     updateSize: (ballSize: number, scene: THREE.Scene) => {
       ballz.forEach((b, i) => {
         scene.remove(b.mesh)
-        const material = b.mesh.material as THREE.ShaderMaterial
-        const mesh = createBallMesh(i, ballSize, material.uniforms.fuzzAmount.value)
-        mesh.position.set(b.pos.x, b.pos.y, b.pos.z)
+        const mesh = createBallMesh({...b, ...{size: ballSize}})
         scene.add(mesh)
         ballz[i].mesh = mesh
       })
@@ -47,13 +57,12 @@ export function makeBallz(amount: number, ballSize: number, fuzzAmount: number) 
   }
 }
 
-function createMaterial(i: number, ballSize: number, fuzzAmount: number) {
+function createMaterial(ballSize: number, fuzzAmount: number) {
   return new THREE.ShaderMaterial({
     uniforms: {
       fuzzAmount: { value: fuzzAmount / 50 },
       ballSize: { value: ballSize / 100 },
       viewportSize: { value: new THREE.Vector2(600, 600)},
-      zAdd: { value: i },
     },
     vertexShader: ballVertexShader,
     fragmentShader: ballFragmentShader,
@@ -71,9 +80,11 @@ function createMesh(geometry: THREE.PlaneGeometry, material: THREE.ShaderMateria
   return new THREE.Mesh(geometry, material)
 }
 
-function createBallMesh(i: number, ballSize: number, fuzzAmount: number) {
-  const material = createMaterial(i, ballSize, fuzzAmount)
-  const geometry = createGeometry(ballSize)
-  
-  return createMesh(geometry, material)
+function createBallMesh(options: BallOptions) {
+  const material = createMaterial(options.size, options.fuzz)
+  const geometry = createGeometry(options.size)
+
+  const mesh = createMesh(geometry, material)
+  mesh.position.set(options.pos?.x || 0, options.pos?.y || 0, options.pos?.z || 0)
+  return mesh
 }

@@ -25,7 +25,18 @@
     viewParentElement.appendChild(renderer.domElement)
   })
 
-  const ballz = makeBallz(2, 1, fuzzAmount)
+  const ballz = makeBallz([
+    {
+      outline: -1,
+      fuzz: fuzzAmount,
+      size: ballSize,
+    },
+    {
+      outline: -1,
+      fuzz: fuzzAmount,
+      size: ballSize,
+    },
+  ])
   ballz.addBallz(scene)
 
   $: ballz.updateSize(ballSize, scene)
