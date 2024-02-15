@@ -1,6 +1,7 @@
 import * as THREE from "three"
 import ballVertexShader from "$lib/shaders/ball.vert?raw"
 import ballFragmentShader from "$lib/shaders/ball.frag?raw"
+import type { TransformControls } from "three/examples/jsm/Addons.js"
 
 interface BallMesh extends BallOptions { 
   mesh: THREE.Mesh, 
@@ -10,7 +11,7 @@ export interface BallOptions {
   outline: number,
   fuzz: number,
   size: number,
-  pos?: THREE.Vector3
+  pos: THREE.Vector3
 }
 
 export function makeBallz(options: BallOptions[]) {
@@ -19,11 +20,9 @@ export function makeBallz(options: BallOptions[]) {
   for (let i = 0; i < options.length; i++) {
     const mesh = createBallMesh(options[i])
     
-    if (!options[i].pos) {
-      options[i].pos = new THREE.Vector3(i * 2, 0, 0)
-    } 
+    options[i].pos = new THREE.Vector3(i * 2, 0, 0)
     
-    mesh.position.set(options[i].pos?.x || 0, options[i].pos?.y || 0, options[i].pos?.z || 0)
+    mesh.position.set(options[i].pos.x || 0, options[i].pos.y || 0, options[i].pos.z || 0)
 
     ballz.push({...options[i], ...{ 
       mesh, 
@@ -53,10 +52,12 @@ export function makeBallz(options: BallOptions[]) {
         ballz[i].mesh = mesh
       })
     },
-    updateBall: (ball: BallMesh, options: BallOptions, scene: THREE.Scene) => {
+    updateBall: (ball: BallMesh, options: BallOptions, scene: THREE.Scene, transform: TransformControls) => {
+      transform.detach()
       scene.remove(ball.mesh)
       const mesh = createBallMesh(options)
       scene.add(mesh)
+      transform.attach(mesh)
       ball.mesh = mesh
     },
     balls: ballz
@@ -68,7 +69,7 @@ function createMaterial(options: BallOptions) {
     uniforms: {
       fuzzAmount: { value: options.fuzz / 50 },
       ballSize: { value: options.size / 100 },
-      viewportSize: { value: new THREE.Vector2(600, 600)},
+      viewportSize: { value: new THREE.Vector2(500, 500)},
       outlines: { value: options.outline }
     },
     vertexShader: ballVertexShader,
@@ -92,6 +93,6 @@ function createBallMesh(options: BallOptions) {
   const geometry = createGeometry(options)
 
   const mesh = createMesh(geometry, material)
-  mesh.position.set(options.pos?.x || 0, options.pos?.y || 0, options.pos?.z || 0)
+  mesh.position.set(options.pos.x, options.pos.y, options.pos.z)
   return mesh
 }
