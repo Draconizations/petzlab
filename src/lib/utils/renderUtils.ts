@@ -57,12 +57,13 @@ export function makeBallz(options: BallOptions[]) {
   }
 }
 
-function createMaterial(ballSize: number, fuzzAmount: number) {
+function createMaterial(options: BallOptions) {
   return new THREE.ShaderMaterial({
     uniforms: {
-      fuzzAmount: { value: fuzzAmount / 50 },
-      ballSize: { value: ballSize / 100 },
+      fuzzAmount: { value: options.fuzz / 50 },
+      ballSize: { value: options.size / 100 },
       viewportSize: { value: new THREE.Vector2(600, 600)},
+      outlines: { value: options.outline }
     },
     vertexShader: ballVertexShader,
     fragmentShader: ballFragmentShader,
@@ -71,8 +72,8 @@ function createMaterial(ballSize: number, fuzzAmount: number) {
   })
 }
 
-function createGeometry(ballSize: number) {
-  const size = ballSize / 100;
+function createGeometry(options: BallOptions) {
+  const size = options.size / 100;
   return new THREE.PlaneGeometry(size, size)
 }
 
@@ -81,8 +82,8 @@ function createMesh(geometry: THREE.PlaneGeometry, material: THREE.ShaderMateria
 }
 
 function createBallMesh(options: BallOptions) {
-  const material = createMaterial(options.size, options.fuzz)
-  const geometry = createGeometry(options.size)
+  const material = createMaterial(options)
+  const geometry = createGeometry(options)
 
   const mesh = createMesh(geometry, material)
   mesh.position.set(options.pos?.x || 0, options.pos?.y || 0, options.pos?.z || 0)
