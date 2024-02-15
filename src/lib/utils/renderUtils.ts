@@ -6,7 +6,7 @@ interface BallMesh extends BallOptions {
   mesh: THREE.Mesh, 
 }
 
-interface BallOptions {
+export interface BallOptions {
   outline: number,
   fuzz: number,
   size: number,
@@ -38,22 +38,28 @@ export function makeBallz(options: BallOptions[]) {
     removeBallz: (scene: THREE.Scene) => {
       ballz.forEach(b => scene.remove(b.mesh))
     },
-    updateFuzz: (fuzzAmount: number) => {
+    updateFuzzAll: (fuzzAmount: number) => {
       ballz.forEach((b, i) => {
         const material = b.mesh.material as THREE.ShaderMaterial
         material.uniforms.fuzzAmount = { value: fuzzAmount / 50 }
         ballz[i].mesh = b.mesh
       })
     },
-    updateSize: (ballSize: number, scene: THREE.Scene) => {
+    updateSizeAll: (ballSize: number, scene: THREE.Scene) => {
       ballz.forEach((b, i) => {
         scene.remove(b.mesh)
         const mesh = createBallMesh({...b, ...{size: ballSize}})
         scene.add(mesh)
         ballz[i].mesh = mesh
       })
-
     },
+    updateBall: (ball: BallMesh, options: BallOptions, scene: THREE.Scene) => {
+      scene.remove(ball.mesh)
+      const mesh = createBallMesh(options)
+      scene.add(mesh)
+      ball.mesh = mesh
+    },
+    balls: ballz
   }
 }
 

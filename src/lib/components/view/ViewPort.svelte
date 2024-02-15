@@ -1,46 +1,19 @@
 <script lang="ts">
-	import { makeBallz } from "$lib/utils/renderUtils"
 	import { onMount } from "svelte"
   import * as THREE from "three"
-  import { OrbitControls } from "three/examples/jsm/Addons.js"
-
-  export let fuzzAmount = 0;
-  export let ballSize = 100;
   
   let viewParentElement: Node
 
-  const scene = new THREE.Scene()
+  export let scene: THREE.Scene
   scene.background = new THREE.Color(0x888888)
-  const camera = new THREE.PerspectiveCamera(30, 1 / 1, 0.1, 1000)
+  export let camera: THREE.Camera
+  export let renderer: THREE.WebGLRenderer
 
-
-  const renderer = new THREE.WebGLRenderer()
   renderer.setSize(600, 600)
-
-  const controls = new OrbitControls(camera, renderer.domElement)
-  camera.position.z = 32
-  controls.update()
 
   onMount(() => {
     viewParentElement.appendChild(renderer.domElement)
   })
-
-  const ballz = makeBallz([
-    {
-      outline: -1,
-      fuzz: fuzzAmount,
-      size: ballSize,
-    },
-    {
-      outline: -1,
-      fuzz: fuzzAmount,
-      size: ballSize,
-    },
-  ])
-  ballz.addBallz(scene)
-
-  $: ballz.updateSize(ballSize, scene)
-  $: ballz.updateFuzz(fuzzAmount)
 
   function animate() {
     requestAnimationFrame(animate)
