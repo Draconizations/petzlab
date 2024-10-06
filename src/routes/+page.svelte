@@ -1,7 +1,6 @@
 <script lang="ts">
 	import ViewPort from "$lib/components/view/ViewPort.svelte"
-	import { debounce } from "$lib/utils"
-	import { makeBallz, type BallOptions  } from "$lib/utils/renderUtils"
+	import { makeScene, type Ball } from "$lib/utils/renderUtils.svelte"
 	import * as THREE from "three"
 	import { OrbitControls, TransformControls } from "three/examples/jsm/Addons.js"
 
@@ -15,84 +14,56 @@
 	transform.addEventListener("objectChange", () => orbit.enableRotate = false)
 	renderer.domElement.addEventListener("mouseup", () => orbit.enableRotate = true)
 
-	transform.addEventListener("objectChange", debounce(() => {
-		if (editing === -1) return
+	transform.addEventListener("objectChange", () => {
+		if (workspace.active) {
+			workspace.active.x = transform.object?.position.x || 0
+			workspace.active.y = transform.object?.position.y || 0
+			workspace.active.z = transform.object?.position.z || 0
+		}
+	})
 
-		balls[editing].pos = transform.object?.position || new THREE.Vector3(0, 0, 0)
-		updateBall(editing)
-	}, 250))
-
-	const balls: BallOptions[] = [
+	const balls: Ball[] = [
 		{
 			outline: -1,
 			fuzz: 3,
 			size: 100,
-			pos: new THREE.Vector3(0, 0, 0)
+			x: 0,
+			y: 0,
+			z: 0
 		},
 		{
 			outline: -1,
 			fuzz: 2,
 			size: 200,
-			pos: new THREE.Vector3(2, 0, 0)
+			x: 2,
+			y: 0,
+			z: 0
 		}
 	]
 
-	let editing: number
-
-	let ballz = makeBallz(balls)
-	ballz.addBallz(scene)
-
-  function updateBall(i: number) {
-    ballz.updateBall(ballz.balls[i], balls[i], scene, transform)
-		ballz = ballz
-  }
-
-  function setTransformControls(i: number) {
-    transform.detach()
-    if (i !== -1) { 
-      transform.attach(ballz.balls[i].mesh)
-			editing = i
-    } else {
-			editing = -1
-    }
-  }
+	let workspace = makeScene(scene, balls, { transform })
 </script>
 
-<div class="row">
-	<ViewPort {scene} {orbit} {transform} {camera} {renderer} />
-	<div class="col pad">
-    <button on:click={() => setTransformControls(-1)}>Quit Edit</button>
-		{#each ballz.balls as ball, index}
-      <div>
-        <b>Ball #{index}</b><br/>
-        <span>Fuzziness</span>
-        <input type="number" bind:value={balls[index].fuzz} on:input={() => updateBall(index)}><br/>
-        <span>Size</span>
-        <input type="number" bind:value={balls[index].size} on:input={() => updateBall(index)}><br/>
-        <button on:click={() => setTransformControls(index)}>Edit</button>
-				[{ballz.balls[index].mesh.position.x.toFixed(2)}, {ballz.balls[index].mesh.position.y.toFixed(2)}, {ballz.balls[index].mesh.position.z.toFixed(2)}]
-      </div>
-    {/each}
-	</div>
-	<div id="help"></div>
+<div style="display: flex; flex-gap: 0.5rem;">
+<ViewPort {scene} {orbit} {transform} {camera} {renderer} />
+
+<div>
+{#each workspace.list as ball, i}
+<div style="margin: 0.5rem; margin-bottom: 1rem;">
+	<b>Ball #{i}</b>
+	{#if workspace.active === ball}
+		<button on:click={() => workspace.active = undefined}>deselect</button>
+	{:else}
+		<button on:click={() => workspace.active = ball}>select</button>
+	{/if}
+	<br/>
+	size: <input bind:value={ball.size} type="number" min={1} max={1000} /><br/>
+	fuzz: <input bind:value={ball.fuzz} type="number" min={0} max={100} /><br/>
+	<b>position:</b>
+	x <input bind:value={ball.x} type="number" style="width: 3rem;"/>
+	y <input bind:value={ball.y} type="number" style="width: 3rem;"/>
+	z <input bind:value={ball.z} type="number" style="width: 3rem;"/>
 </div>
-
-<style>
-	.row,
-	.col {
-		display: flex;
-		flex-direction: column;
-  }
-
-	.pad {
-		padding: 1rem;
-		min-width: 0;
-		min-height: 0;
-	}
-
-	@media (min-width: 600px) {
-		.row {
-			flex-direction: row;
-		}
-	}
-</style>
+{/each}
+</div>
+</div>

@@ -1,36 +1,42 @@
 <script lang="ts">
 	import { onMount } from "svelte"
-  import * as THREE from "three"
-  import { OrbitControls, TransformControls } from "three/examples/jsm/Addons.js";
-  
-  let viewParentElement: Node
+	import * as THREE from "three"
+	import { OrbitControls, TransformControls } from "three/examples/jsm/Addons.js"
 
-  export let scene = new THREE.Scene()
-  export let camera = new THREE.PerspectiveCamera(30, 1, 0.1, 1000)
-  export let renderer = new THREE.WebGLRenderer()
+	let viewParentElement: Node
 
-  export let transform = new TransformControls(camera, renderer.domElement)
-  scene.add(transform)
+	let {
+		scene = new THREE.Scene(),
+		camera = new THREE.PerspectiveCamera(30, 1, 0.1, 1000),
+		renderer = new THREE.WebGLRenderer(),
+		transform = new TransformControls(camera, renderer.domElement),
+		orbit = new OrbitControls(camera, renderer.domElement)
+	}: {
+		scene: THREE.Scene
+		camera: THREE.Camera
+		renderer: THREE.WebGLRenderer
+		transform: TransformControls
+		orbit: OrbitControls
+	} = $props()
 
-  export let orbit = new OrbitControls(camera, renderer.domElement)
-  camera.position.z = 32
-  orbit.update()
+	scene.add(transform)
 
-  scene.background = new THREE.Color(0x888888)
+	camera.position.z = 32
+	orbit.update()
 
-  renderer.setSize(500, 500)
+	scene.background = new THREE.Color(0x888888)
 
-  onMount(() => {
-    viewParentElement.appendChild(renderer.domElement)
-  })
+	renderer.setSize(500, 500)
 
-  function animate() {
-    requestAnimationFrame(animate)
-    renderer.render(scene, camera)
-  }
-  animate()
+	onMount(() => {
+		viewParentElement.appendChild(renderer.domElement)
+	})
+
+	function animate() {
+		requestAnimationFrame(animate)
+		renderer.render(scene, camera)
+	}
+	animate()
 </script>
 
-<div bind:this={viewParentElement}>
-
-</div>
+<div bind:this={viewParentElement}></div>
