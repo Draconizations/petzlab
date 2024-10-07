@@ -80,20 +80,28 @@
 					<button onclick={() => (workspace.active = ball)}>select</button>
 				{/if}
 				<br />
-				size: <input bind:value={ball.size} type="number" min={1} max={1000} /><br />
-				fuzz: <input bind:value={ball.fuzz} type="number" min={0} max={100} /><br />
+				size: <input value={ball.size} type="number" min={1} max={1000} onchange={(e) => {
+					let value = Number.parseInt((e.target as HTMLInputElement).value)
+					if (Number.isNaN(value)) value = 100
+					ball.size = value
+				}} /><br />
+				fuzz: <input value={ball.fuzz} type="number" min={0} max={100} onchange={(e) => {
+					let value = Number.parseInt((e.target as HTMLInputElement).value)
+					if (Number.isNaN(value)) value = 1
+					ball.fuzz = value
+				}} /><br />
 				<b>position:</b>
-				x <input value={ball.pos.x} type="number" style="width: 3rem;" oninput={(e) => {
+				x <input value={ball.pos.x} type="number" style="width: 3rem;" onchange={(e) => {
 					let value = Number.parseInt((e.target as HTMLInputElement).value)
 					if (Number.isNaN(value)) value = 0
 					ball.pos = createPos({...ball.pos, x: value})
 				}} />
-				y <input value={ball.pos.y} type="number" style="width: 3rem;" oninput={(e) => {
+				y <input value={ball.pos.y} type="number" style="width: 3rem;" onchange={(e) => {
 					let value = Number.parseInt((e.target as HTMLInputElement).value)
 					if (Number.isNaN(value)) value = 0
 					ball.pos = createPos({...ball.pos, y: value})
 				}} />
-				z <input value={ball.pos.z} type="number" style="width: 3rem;" oninput={(e) => {
+				z <input value={ball.pos.z} type="number" style="width: 3rem;" onchange={(e) => {
 					let value = Number.parseInt((e.target as HTMLInputElement).value)
 					if (Number.isNaN(value)) value = 0
 					ball.pos = createPos({...ball.pos, z: value})
