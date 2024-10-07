@@ -28,5 +28,5 @@ void main() {
 
   float pct = step(length(stretch - center / viewportSize), (ballSize * 0.5));
   
-  gl_FragColor = vec4(vec3(pct * vec3(0.4118, 1.0, 0.851)), 1.0 - step(pct, 0.0));
+  gl_FragColor = vec4(vec3(pct * vec3(1.0, 1.0, 1.0)), 1.0 - step(pct, 0.0));
 }
