@@ -13,7 +13,6 @@ function createHistory() {
   return {
     push: (undo: () => void, redo: () => void) => {
       if (_index < trail.length - 1) {
-        console.log("oops!")
        trail = trail.slice(0, _index + 1)
       }
       trail.push({
