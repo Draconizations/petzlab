@@ -24,7 +24,7 @@ export type Position = {
 }
 
 export function makeScene(scene: THREE.Scene, ballz: Ball[], extra?: { transform?: TransformControls}) {
-  const _list: BallMesh[] = $state([])
+  let _list: BallMesh[] = $state([])
   const _scene = scene
 
   const _transform: TransformControls|undefined = extra?.transform || undefined
@@ -40,6 +40,9 @@ export function makeScene(scene: THREE.Scene, ballz: Ball[], extra?: { transform
   return {
     get list() {
       return _list
+    },
+    set list(list: BallMesh[]) {
+      _list = list
     },
     get scene() {
       return _scene
@@ -66,7 +69,7 @@ export function makeScene(scene: THREE.Scene, ballz: Ball[], extra?: { transform
   }
 }
 
-function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
+export function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
   function updateSize() {
     if (_transform) _transform.detach()
       
@@ -105,11 +108,7 @@ function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
       
       history.push(() => {
         _ball.fuzz = prev
-        ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: cur / 50}
-      }, 
-      () => {
-        _ball.fuzz = cur
-        ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: cur / 50}
+        ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: prev / 50}
       })
       
       _ball.fuzz = cur
@@ -124,10 +123,6 @@ function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
       history.push(() => {
         _ball.size = prev
         updateSize()
-      },
-      () => {
-        _ball.size = size
-        updateSize()
       })
 
       _ball.size = size
@@ -137,15 +132,12 @@ function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
       return _ball.pos
     },
     set pos(pos: Position) {
-      const prev = {..._ball.pos}
       const curr = {...pos}
+      const prev = {..._ball.pos}
 
       history.push(() => {
         _ball.pos = prev
         updatePosition(prev)
-      }, () => {
-        _ball.pos = curr
-        updatePosition(curr)
       })
 
       _ball.pos = curr
