@@ -1,7 +1,8 @@
 export const history = createHistory()
 
 interface TrailEntry {
-  reset: () => void
+  undo: () => void,
+  redo: () => void
 }
 
 function createHistory() {
@@ -10,25 +11,27 @@ function createHistory() {
   let _listening = $state(false)
   
   return {
-    push: (reset: () => void) => {
+    push: (undo: () => void, redo: () => void) => {
       if (_index < trail.length - 1) {
+        console.log("oops!")
        trail = trail.slice(0, _index + 1)
       }
       trail.push({
-        reset
+        undo,
+        redo
       })
       
       _index += 1
     },
     undo: () => {
       if (_index > -1) {
-        trail[_index]?.reset()
+        trail[_index]?.undo()
         _index -= 1
       }
     },
     redo: () => {
       if (_index < trail.length - 1) {
-        trail[_index + 1]?.reset()
+        trail[_index + 1]?.redo()
         _index += 1
       }
     },

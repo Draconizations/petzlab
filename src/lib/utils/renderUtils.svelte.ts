@@ -103,16 +103,19 @@ export function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
       return _ball.fuzz
     },
     set fuzz(fuzz: number) {
-      const cur = fuzz > 10 ? 10 : fuzz < 0 ? 0 : fuzz
+      const curr = fuzz > 10 ? 10 : fuzz < 0 ? 0 : fuzz
       const prev = _ball.fuzz
       
       history.push(() => {
         _ball.fuzz = prev
         ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: prev / 50}
+      },() => {
+        _ball.fuzz = curr
+        ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: curr / 50}
       })
       
-      _ball.fuzz = cur
-      ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: cur / 50}
+      _ball.fuzz = curr
+      ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: curr / 50}
     },
     get size() {
       return _ball.size
@@ -122,6 +125,9 @@ export function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
 
       history.push(() => {
         _ball.size = prev
+        updateSize()
+      }, () => {
+        _ball.size = size
         updateSize()
       })
 
@@ -138,6 +144,9 @@ export function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
       history.push(() => {
         _ball.pos = prev
         updatePosition(prev)
+      }, () => {
+        _ball.pos = curr
+        updatePosition(curr)
       })
 
       _ball.pos = curr
@@ -195,7 +204,7 @@ function createSingularBall(ball: Ball): Ball {
   }
 }
 
-function createPos(pos: Position): Position {
+export function createPos(pos: Position): Position {
   let _x = $state(pos.x)
   let _y = $state(pos.y)
   let _z = $state(pos.z)

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ViewPort from "$components/view/ViewPort.svelte"
-	import { createBall, makeScene, type Ball, type BallMesh } from "$lib/utils/renderUtils.svelte"
+	import { createBall, createPos, makeScene, type Ball, type BallMesh } from "$lib/utils/renderUtils.svelte"
 	import * as THREE from "three"
 	import { OrbitControls, TransformControls } from "three/examples/jsm/Addons.js"
 	import { history } from "$lib/history.svelte"
@@ -83,20 +83,20 @@
 				size: <input bind:value={ball.size} type="number" min={1} max={1000} /><br />
 				fuzz: <input bind:value={ball.fuzz} type="number" min={0} max={100} /><br />
 				<b>position:</b>
-				x <input bind:value={ball.pos.x} type="number" style="width: 3rem;" oninput={(e) => {
+				x <input value={ball.pos.x} type="number" style="width: 3rem;" oninput={(e) => {
 					let value = Number.parseInt((e.target as HTMLInputElement).value)
 					if (Number.isNaN(value)) value = 0
-					ball.pos = {...ball.pos, x: value}
+					ball.pos = createPos({...ball.pos, x: value})
 				}} />
-				y <input bind:value={ball.pos.y} type="number" style="width: 3rem;" oninput={(e) => {
+				y <input value={ball.pos.y} type="number" style="width: 3rem;" oninput={(e) => {
 					let value = Number.parseInt((e.target as HTMLInputElement).value)
 					if (Number.isNaN(value)) value = 0
-					ball.pos = {...ball.pos, y: value}
+					ball.pos = createPos({...ball.pos, y: value})
 				}} />
-				z <input bind:value={ball.pos.z} type="number" style="width: 3rem;" oninput={(e) => {
+				z <input value={ball.pos.z} type="number" style="width: 3rem;" oninput={(e) => {
 					let value = Number.parseInt((e.target as HTMLInputElement).value)
 					if (Number.isNaN(value)) value = 0
-					ball.pos = {...ball.pos, z: value}
+					ball.pos = createPos({...ball.pos, z: value})
 				}}/>
 			</div>
 		{/each}
