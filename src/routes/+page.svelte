@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ViewPort from "$lib/components/view/ViewPort.svelte"
+	import ViewPort from "$components/view/ViewPort.svelte"
 	import { makeScene, type Ball } from "$lib/utils/renderUtils.svelte"
 	import * as THREE from "three"
 	import { OrbitControls, TransformControls } from "three/examples/jsm/Addons.js"
