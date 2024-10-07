@@ -34,14 +34,12 @@
 		if (workspace.active) {
 			const callback = () => {
 				if (workspace.active) {
-					if (workspace.active.x !== transform.object?.position.x || 0)
-						workspace.active.x = transform.object?.position.x || 0
-
-					if (workspace.active.y !== transform.object?.position.y || 0) 
-						workspace.active.y = transform.object?.position.y || 0
-					
-					if (workspace.active.z !== transform.object?.position.z || 0) 
-						workspace.active.z = transform.object?.position.z || 0
+					if ((workspace.active.pos.x !== transform.object?.position.x) || (workspace.active.pos.y !== transform.object?.position.y || 0) || (workspace.active.pos.z !== transform.object?.position.z)) 
+						workspace.active.pos = {
+						x: transform.object?.position.x || 0,
+						y: transform.object?.position.y || 0,
+						z: transform.object?.position.z || 0
+					} 
 				}
 
 				transform.removeEventListener("mouseUp", callback)
@@ -56,17 +54,13 @@
 			outline: -1,
 			fuzz: 3,
 			size: 100,
-			x: 0,
-			y: 0,
-			z: 0
+			pos: {x: 0, y: 0, z: 0}
 		},
 		{
 			outline: -1,
 			fuzz: 2,
 			size: 200,
-			x: 2,
-			y: 0,
-			z: 0
+			pos: {x: 2, y: 0, z: 0}
 		}
 	]
 
@@ -89,9 +83,21 @@
 				size: <input bind:value={ball.size} type="number" min={1} max={1000} /><br />
 				fuzz: <input bind:value={ball.fuzz} type="number" min={0} max={100} /><br />
 				<b>position:</b>
-				x <input bind:value={ball.x} type="number" style="width: 3rem;" />
-				y <input bind:value={ball.y} type="number" style="width: 3rem;" />
-				z <input bind:value={ball.z} type="number" style="width: 3rem;" />
+				x <input bind:value={ball.pos.x} type="number" style="width: 3rem;" oninput={(e) => {
+					let value = Number.parseInt((e.target as HTMLInputElement).value)
+					if (Number.isNaN(value)) value = 0
+					ball.pos = {...ball.pos, x: value}
+				}} />
+				y <input bind:value={ball.pos.y} type="number" style="width: 3rem;" oninput={(e) => {
+					let value = Number.parseInt((e.target as HTMLInputElement).value)
+					if (Number.isNaN(value)) value = 0
+					ball.pos = {...ball.pos, y: value}
+				}} />
+				z <input bind:value={ball.pos.z} type="number" style="width: 3rem;" oninput={(e) => {
+					let value = Number.parseInt((e.target as HTMLInputElement).value)
+					if (Number.isNaN(value)) value = 0
+					ball.pos = {...ball.pos, z: value}
+				}}/>
 			</div>
 		{/each}
 	</div>

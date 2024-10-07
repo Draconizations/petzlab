@@ -14,9 +14,7 @@ export interface Ball {
   outline: number,
   fuzz: number,
   size: number,
-  x: number,
-  y: number,
-  z: number
+  pos: Position
 }
 
 export type Position = {
@@ -79,10 +77,8 @@ function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
     if (_transform) _transform.attach(_mesh)
   }
 
-  function updatePosition() {
-    _mesh.position.x = _ball.x
-    _mesh.position.y = _ball.y
-    _mesh.position.z = _ball.z
+  function updatePosition(pos: Position) {
+    _mesh.position.set(pos.x, pos.y, pos.z)
   }
 
   const _ball = $state(createSingularBall(ball))
@@ -91,7 +87,7 @@ function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
   const _scene = scene
   let _transform: TransformControls|undefined = $state(undefined)
 
-  updatePosition()
+  updatePosition(_ball.pos)
 
   return {
     get outline() {
@@ -137,56 +133,23 @@ function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
       _ball.size = size
       updateSize()
     },
-    get x() {
-      return _ball.x
+    get pos() {
+      return _ball.pos
     },
-    set x(x: number) {
-      const prev = _ball.x
+    set pos(pos: Position) {
+      const prev = {..._ball.pos}
+      const curr = {...pos}
 
       history.push(() => {
-        _ball.x = prev
-        _mesh.position.x = prev
+        _ball.pos = prev
+        updatePosition(prev)
       }, () => {
-        _ball.x = x
-        _mesh.position.x = x
+        _ball.pos = curr
+        updatePosition(curr)
       })
 
-      _ball.x = x
-      _mesh.position.x = _ball.x
-    },
-    get y() {
-      return _ball.y
-    },
-    set y(y: number) {
-      const prev = _ball.y
-
-      history.push(() => {
-        _ball.y = prev
-        _mesh.position.y = prev
-      }, () => {
-        _ball.y = y
-        _mesh.position.y = y
-      })
-
-      _ball.y = y
-      _mesh.position.y = _ball.y
-    },
-    get z() {
-      return _ball.z
-    },
-    set z(z: number) {
-      const prev = _ball.z
-
-      history.push(() => {
-        _ball.z = prev
-        _mesh.position.z = prev
-      }, () => {
-        _ball.z = z
-        _mesh.position.z = z
-      })
-
-      _ball.z = z
-      _mesh.position.z = _ball.z
+      _ball.pos = curr
+      updatePosition(curr)
     },
     get mesh() {
       return _mesh
@@ -210,9 +173,7 @@ function createSingularBall(ball: Ball): Ball {
   let _outline = $state(ball.outline)
   let _fuzz = $state(ball.fuzz)
   let _size = $state(ball.size)
-  let _x = $state(ball.x)
-  let _y = $state(ball.y)
-  let _z = $state(ball.z)
+  let _pos = $state(createPos(ball.pos))
 
   return {
     get outline() {
@@ -233,6 +194,21 @@ function createSingularBall(ball: Ball): Ball {
     set size(size: number) {
       _size = size
     },
+    get pos() {
+      return _pos
+    },
+    set pos(pos: Position) {
+      _pos = pos
+    }
+  }
+}
+
+function createPos(pos: Position): Position {
+  let _x = $state(pos.x)
+  let _y = $state(pos.y)
+  let _z = $state(pos.z)
+
+  return {
     get x() {
       return _x
     },
@@ -283,6 +259,6 @@ function createBallMesh(options: Ball) {
   const geometry = createGeometry(options)
 
   const mesh = createMesh(geometry, material)
-  mesh.position.set(options.x, options.y, options.z)
+  mesh.position.set(options.pos.x, options.pos.y, options.pos.z)
   return mesh
 }
