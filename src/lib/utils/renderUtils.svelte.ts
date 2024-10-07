@@ -2,8 +2,9 @@ import * as THREE from "three"
 import ballVertexShader from "$lib/shaders/ball.vert?raw"
 import ballFragmentShader from "$lib/shaders/ball.frag?raw"
 import type { TransformControls } from "three/examples/jsm/Addons.js"
+import { history } from "$lib/history.svelte"
 
-interface BallMesh extends Ball { 
+export interface BallMesh extends Ball { 
   mesh: THREE.Mesh
   readonly scene: THREE.Scene
   transform?: TransformControls
@@ -103,14 +104,36 @@ function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
       return _ball.fuzz
     },
     set fuzz(fuzz: number) {
-      const f = fuzz > 10 ? 10 : fuzz < 0 ? 0 : fuzz
-      _ball.fuzz = f
-      ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: f / 50}
+      const cur = fuzz > 10 ? 10 : fuzz < 0 ? 0 : fuzz
+      const prev = _ball.fuzz
+      
+      history.push(() => {
+        _ball.fuzz = prev
+        ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: cur / 50}
+      }, 
+      () => {
+        _ball.fuzz = cur
+        ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: cur / 50}
+      })
+      
+      _ball.fuzz = cur
+      ;(_mesh.material as THREE.ShaderMaterial).uniforms.fuzzAmount = { value: cur / 50}
     },
     get size() {
       return _ball.size
     },
     set size(size: number) {
+      const prev = _ball.size
+
+      history.push(() => {
+        _ball.size = prev
+        updateSize()
+      },
+      () => {
+        _ball.size = size
+        updateSize()
+      })
+
       _ball.size = size
       updateSize()
     },
@@ -118,6 +141,16 @@ function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
       return _ball.x
     },
     set x(x: number) {
+      const prev = _ball.x
+
+      history.push(() => {
+        _ball.x = prev
+        _mesh.position.x = prev
+      }, () => {
+        _ball.x = x
+        _mesh.position.x = x
+      })
+
       _ball.x = x
       _mesh.position.x = _ball.x
     },
@@ -125,6 +158,16 @@ function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
       return _ball.y
     },
     set y(y: number) {
+      const prev = _ball.y
+
+      history.push(() => {
+        _ball.y = prev
+        _mesh.position.y = prev
+      }, () => {
+        _ball.y = y
+        _mesh.position.y = y
+      })
+
       _ball.y = y
       _mesh.position.y = _ball.y
     },
@@ -132,6 +175,16 @@ function createBall(ball: Ball, scene: THREE.Scene): BallMesh {
       return _ball.z
     },
     set z(z: number) {
+      const prev = _ball.z
+
+      history.push(() => {
+        _ball.z = prev
+        _mesh.position.z = prev
+      }, () => {
+        _ball.z = z
+        _mesh.position.z = z
+      })
+
       _ball.z = z
       _mesh.position.z = _ball.z
     },
